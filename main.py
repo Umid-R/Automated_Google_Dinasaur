@@ -2,26 +2,21 @@ from selenium import webdriver
 import time
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from PIL import Image
-import pyautogui
+from PIL import ImageGrab
+import numpy as np
 
 
 
 
 chrome_options=webdriver.ChromeOptions()
 chrome_options.add_experimental_option('detach',True)
-
 driver = webdriver.Chrome(options=chrome_options)
-
 driver.get("https://elgoog.im/t-rex/")
-
 
 # Wait until the page is loaded 
 time.sleep(1)
 
 random_element=driver.find_element(By.TAG_NAME,"body")
-
-
 # Start the game 
 time.sleep(1)
 random_element.send_keys(Keys.SPACE)
@@ -30,24 +25,57 @@ time.sleep(3)
 
 
 
-while True:
-    screenshot = pyautogui.screenshot()
-    region = screenshot.crop((250, 1200,600, 1400))
-    gray = region.convert("L")
-    pixels = gray.load()
 
+
+def get_image():
+    region = ImageGrab.grab(bbox=(110, 630,313,695))
+    return region
+
+def detect_mode():
+    
+
+    # Grab a tiny background area (adjust if needed)
+    img = ImageGrab.grab(bbox=(110, 700,306,710))  
+    gray = np.array(img.convert("L"))  
+
+    avg_brightness = gray.mean()
+
+    if avg_brightness < 100:
+        return "dark"
+    else:
+        return  "light"
+    
+
+def detect_obstacle(image, mode):
+    gray = image.convert("L")
+    pixels = gray.load()
+    y = gray.height // 2
     obstacle = False
-    for x in range(gray.width):
-        for y in range(gray.height):
-            if pixels[x, y] < 150:
+    if mode=='light':
+        for x in range(gray.width):
+            if pixels[x, y] < 100:
                 obstacle = True
                 break
-        if obstacle:
-            break
-
-    if obstacle:
+    else:
+        for x in range(gray.width):
+            if pixels[x, y] > 150:  
+                obstacle = True
+                break
         
-        random_element.send_keys(Keys.UP)
+            
+    return obstacle
+    
 
-    time.sleep(0.01)
 
+
+
+while True:
+    image=get_image()
+    mode=detect_mode()
+    if detect_obstacle(image,mode):
+        random_element.send_keys(Keys.SPACE)
+    
+    
+    
+    
+    
