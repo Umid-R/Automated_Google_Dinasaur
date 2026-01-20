@@ -45,8 +45,9 @@ python -m venv .venv
 source .venv/bin/activate
 
 Install dependencies:
-
+``` bash
 pip install selenium pillow numpy
+```
 
 ---
 
@@ -68,14 +69,6 @@ Important:
 - Dark mode and light mode are handled separately
 - The bot only jumps (ducking is not implemented)
 
----
-
-## Limitations
-
-- Screen resolution dependent
-- No bird duck logic
-- No score tracking
-- Fixed coordinates
 
 ---
 
